@@ -1,7 +1,21 @@
 name: dbt_shop
 
 services:
-  # OLTP-база интернет-магазина: те же данные, что в практике 2.
+  greenplum:
+    image: "${GREENPLUM_IMAGE:-andruche/greenplum:7-4seg}"
+    hostname: greenplum
+    ports:
+      - "${GP_PORT:-5440}:5432"
+    shm_size: "1gb"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /usr/local/gpdb/bin/pg_isready -h localhost -p 5432 -U gpadmin -d postgres
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -18,17 +32,31 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
+  
+  loader:
+    build: .
+    image: dbt-shop:1.10
+    entrypoint: ["python", "-u", "/project/loader/load.py"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      greenplum:
+        condition: service_healthy
+    volumes:
+      - .:/project
 
-  # dbt в контейнере. Запуск: docker compose run --rm dbt <команда>
+
   dbt:
     build: .
     image: dbt-shop:1.10
     profiles: ["tools"]
     depends_on:
-      postgres:
+      greenplum:
         condition: service_healthy
+      loader:
+        condition: service_completed_successfully
     environment:
-      DBT_HOST: postgres
+      DBT_HOST: greenplum
       DBT_PORT: "5432"
       DBT_PROFILES_DIR: /project
       DBT_SEND_ANONYMOUS_USAGE_STATS: "false"

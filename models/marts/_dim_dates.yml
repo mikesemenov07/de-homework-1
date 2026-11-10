@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: dim_dates
+    description: >
+      Календарь от минимальной до максимальной даты заказа включительно.
+      Одна строка — один календарный день, включая дни без заказов.
+    columns:
+      - name: date_day
+        description: "Календарная дата, первичный ключ."
+        data_tests: [unique, not_null]
+
+      - name: year
+        description: "Год."
+
+      - name: quarter
+        description: "Квартал года, от 1 до 4."
+
+      - name: month
+        description: "Месяц года, от 1 до 12."
+
+      - name: day_of_month
+        description: "День месяца, от 1 до 31."
+
+      - name: day_of_week
+        description: "День недели: 1 — понедельник, 7 — воскресенье."
+
+      - name: is_weekend
+        description: "Признак субботы или воскресенья."
+        data_tests: [not_null]

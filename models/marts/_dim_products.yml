@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: >
+      Измерение товаров. Одна строка — один товар.
+      Содержит название, бренд и иерархию категории до трёх уровней.
+    columns:
+      - name: product_id
+        description: "Уникальный номер товара."
+        data_tests: [unique, not_null]
+
+      - name: product_name
+        description: "Название товара."
+
+      - name: brand
+        description: "Бренд товара."
+
+      - name: category_id
+        description: "Номер категории товара."
+        data_tests: [not_null]
+
+      - name: category_name
+        description: "Категория, к которой непосредственно относится товар."
+
+      - name: parent_category_name
+        description: "Название родительской категории; null у корневой."
+
+      - name: root_category_name
+        description: "Верхний уровень категории: Electronics или Home."
+        data_tests: [not_null]

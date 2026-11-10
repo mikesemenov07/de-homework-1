@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Измерение клиентов, включая клиентов без покупок.
+      Одна строка — один зарегистрированный клиент.
+    columns:
+      - name: customer_id
+        description: "Уникальный номер клиента."
+        data_tests: [unique, not_null]
+
+      - name: registered_at
+        description: "Дата и время регистрации клиента."
+
+      - name: registration_date
+        description: "Дата регистрации без времени."
+
+      - name: city
+        description: "Город клиента."
+
+      - name: acquisition_channel
+        description: "Канал привлечения клиента."
+
+      - name: first_confirmed_order_id
+        description: >
+          Номер первого подтверждённого заказа по времени оформления.
+          При одинаковом времени выбирается меньший номер.
+          Null у клиента без подтверждённых покупок.
+
+      - name: first_confirmed_at
+        description: >
+          Время оформления первого подтверждённого заказа.
+          Null у клиента без подтверждённых покупок.
+
+      - name: confirmed_orders_count
+        description: "Количество подтверждённых заказов; 0 без покупок."
+        data_tests: [not_null]
+
+      - name: confirmed_revenue
+        description: >
+          Сумма подтверждённых заказов после скидок в рублях.
+          Повторные списания не увеличивают выручку.
+        data_tests: [not_null]
+
+      - name: is_buyer
+        description: "Есть ли у клиента хотя бы один подтверждённый заказ."
+        data_tests: [not_null]

@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_shop__products
+    description: "Товары магазина. Одна строка — один товар."
+    columns:
+      - name: product_id
+        description: "Уникальный номер товара."
+        data_tests: [unique, not_null]
+
+      - name: product_name
+        description: "Название товара."
+
+      - name: brand
+        description: "Бренд товара."
+
+      - name: category_name
+        description: "Название категории товара в источнике."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_shop__product_categories')
+                field: category_name
+
+  - name: stg_shop__product_categories
+    description: "Дерево категорий. Одна строка — одна категория."
+    columns:
+      - name: category_id
+        description: "Уникальный номер категории."
+        data_tests: [unique, not_null]
+
+      - name: parent_category_id
+        description: "Номер родительской категории; null у корневых."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_shop__product_categories')
+                field: category_id
+
+      - name: category_name
+        description: "Уникальное название категории."
+        data_tests: [unique, not_null]
