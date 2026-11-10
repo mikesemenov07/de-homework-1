@@ -2,33 +2,48 @@ version: 2
 
 models:
   - name: int_orders_with_payments
-    description: '{{ doc("confirmed_order") }}'
+    description: >
+      Заказы с итогами платежей, включая тестовые.
+      Платежи агрегируются до заказа перед соединением.
     columns:
       - name: order_id
         description: "Номер заказа."
+
       - name: successful_payments_count
         description: "Число успешных оплат без возвратов."
+
       - name: paid_amount
-        description: "Сумма успешных оплат без возвратов; 0, если оплат нет."
+        description: "Сумма успешных оплат без возвратов."
+
       - name: refunded_amount
-        description: "Сумма возвратов положительным числом."
+        description: "Сумма успешных возвратов положительным числом."
+
       - name: net_paid_amount
         description: "Оплачено минус возвращено."
+
       - name: is_confirmed
-        description: "Подтверждённая покупка: статус paid и хотя бы одна успешная оплата."
+        description: '{{ doc("confirmed_order") }}'
+
       - name: success_operations_count
-        description: "Число операций в статусе success, включая возвраты."
+        description: "Число успешных операций, включая возвраты."
+
       - name: failed_operations_count
         description: "Число неуспешных операций."
+
       - name: pending_operations_count
         description: "Число операций в ожидании."
-      - name: int_product_categories
-        description: "Категории с родителем и верхним уровнем. Поддерживаются три уровня дерева."
-      - name: int_customer_orders
-        description: "Первая подтверждённая покупка, число покупок и выручка каждого покупателя."
-      - name: int_dates
-        description: "Все календарные дни от минимальной до максимальной даты заказа."
-      - name: int_order_items
-        description: "Позиции без тестовых заказов с клиентом, датой и статусом заказа."
-      - name: int_order_items_summary
-        description: "Число разных товаров в каждом заказе."
+
+  - name: int_product_categories
+    description: "Категории с родителем и верхним уровнем. Поддерживаются три уровня дерева."
+
+  - name: int_customer_orders
+    description: "Первая подтверждённая покупка, число покупок и выручка каждого покупателя."
+
+  - name: int_dates
+    description: "Все календарные дни от минимальной до максимальной даты заказа."
+
+  - name: int_order_items
+    description: "Позиции без тестовых заказов с клиентом, датой и статусом заказа."
+
+  - name: int_order_items_summary
+    description: "Число разных товаров в каждом заказе."
