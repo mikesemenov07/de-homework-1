@@ -5,3 +5,7 @@ logs/
 .DS_Store
 .user.yml
 .env
+*.log
+__pycache__/
+spark-warehouse/
+metastore_db/

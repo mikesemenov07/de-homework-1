@@ -1,9 +1,9 @@
 # Витрины интернет-магазина
 
-Проект собирает аналитические витрины магазина в Greenplum с помощью dbt.
+В проекте два задания: витрины в Greenplum с помощью dbt и обработка данных в Spark с сохранением в MinIO.
 Исходные таблицы находятся в PostgreSQL. Сервис loader копирует их в Greenplum, в базу dwh и схему raw. После этого dbt строит факты и измерения.
 
-## Запуск
+## ДЗ-1, запуск dbt
 
 Нужны Docker и Docker Compose. Python и dbt отдельно устанавливать не нужно.
 Все команды выполняются из папки проекта.
@@ -60,7 +60,7 @@ docker compose run --rm dbt build
 
 ## Модель данных
 
-```
+```mermaid
 erDiagram
     dim_customers ||--o{ fct_orders : customer_id
     dim_customers ||--o{ fct_order_items : customer_id
@@ -157,7 +157,7 @@ order by c.relname;
 packages.yml и package-lock.yml включаются в репозиторий.
 Папка dbt_packages создаётся командой dbt deps и в Git не добавляется.
 
-## Контрольные значения
+## Контрольные значения ДЗ-1
 
 Ожидаемые результаты для учебных данных
 
@@ -213,3 +213,40 @@ down -v удаляет том с данными PostgreSQL
 при его удалении они тоже теряются. Loader и dbt восстанавливают учебные данные и витрины.
 
 Папки target, logs и dbt_packages не включаются в репозиторий. 
+
+
+## ДЗ-2: Spark и MinIO
+
+Во втором задании данные из PostgreSQL загружаются в MinIO. Spark обрабатывает их и собирает витрину заказов fct_orders.
+Код находится в папке spark, скрипты проверки — в spark_check.
+Заказы, платежи и события сначала загружаются целиком, затем — за три дня перед датой запуска. Платежи без даты оплаты перечитываются каждый раз. Остальные таблицы всегда загружаются целиком.
+
+### Как запустить
+
+Нужен стенд practice_7 с семинара. Папки practice_7 и store_hse должны лежать рядом.
+
+В docker-compose.yaml стенда у сервиса ubuntu-vm, в разделе volumes, заменить строку ./study:/home/student/study на ../store_hse:/home/student/study/store_hse. Остальные подключения оставить.
+
+В MinIO должен быть создан бакет de-course.
+
+В файле practice_7/spark-config/spark-env.sh нужно включить очистку временных файлов завершённых приложений:
+
+```bash
+export SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=60 -Dspark.worker.cleanup.appDataTtl=120"
+```
+
+Если запущена документация dbt из первого задания, остановить её через Ctrl+C. Она использует порт 8080, который нужен Spark.
+
+Из папки practice_7 запустить стенд:
+```bash
+docker compose up -d
+```
+
+Затем из папки store_hse запустить загрузку и проверки:
+
+```bash
+bash spark_check/runner.sh 2026-03-05 2026-03-06
+```
+
+Команда выполняется в терминале компьютера. Она запускает все 11 этапов и проверяет результат за каждую дату.
+Результаты сохраняются в spark_check/check.log, этот файл в Git не добавляется.
